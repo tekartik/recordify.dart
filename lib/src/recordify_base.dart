@@ -6,4 +6,4 @@
 /// Checks if you are awesome. Spoiler: you are.
 import '../recordify.dart';
 
-const Record recordify = const Record();
+const Record recordify = Record();

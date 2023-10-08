@@ -1,8 +1,6 @@
 import 'package:reflectable/reflectable.dart';
 import 'recordify_base.dart';
-import 'import.dart';
 import '../recordify.dart';
-
 
 // Singleton that maps every class annotated with @serializable
 class SerializerClassInfo {
@@ -10,10 +8,10 @@ class SerializerClassInfo {
   final List<VariableMirror> variableMirrors = [];
   final List<VariableMirror> indecies = [];
   SerializerClassInfo(this.classMirror) {
-    classMirror.declarations.forEach((String key, DeclarationMirror declarationMirror) {
+    classMirror.declarations
+        .forEach((String key, DeclarationMirror declarationMirror) {
       if (declarationMirror is VariableMirror) {
-
-        for (var metadata in declarationMirror?.metadata) {
+        for (var metadata in declarationMirror.metadata) {
           if (metadata is Ignore) {
             // skip
             return;
@@ -31,14 +29,19 @@ class SerializerClassInfo {
 final Map<Type, SerializerClassInfo> _classes = {};
 
 SerializerClassInfo getClassInfo(Type type) {
-  SerializerClassInfo classInfo = _classes[type];
+  var classInfo = _classes[type];
   if (classInfo == null) {
-    ClassMirror typeMirror = recordify.reflectType(type);
-    classInfo = new SerializerClassInfo(typeMirror);
-    _classes[type] = classInfo;
+    var typeMirror = recordify.reflectType(type);
+    if (typeMirror is ClassMirror) {
+      classInfo = SerializerClassInfo(typeMirror);
+      _classes[type] = classInfo;
+    } else {
+      throw UnsupportedError('Unsupported $type, $classInfo, $typeMirror');
+    }
   }
   return classInfo;
 }
+
 // Utility class to access to the serializer api
 Map toMap(Object object) {
   SerializerClassInfo classInfo = getClassInfo(object.runtimeType);
@@ -46,8 +49,7 @@ Map toMap(Object object) {
   Map map = {};
   classInfo.variableMirrors.forEach((VariableMirror variableMirror) {
     String varName = variableMirror.simpleName;
-    //dynamic value = instanceMirror.invokeGetter(varName);
-    dynamic value = instanceMirror.reflectee;
+    dynamic value = instanceMirror.invokeGetter(varName);
     if (value != null) {
       map[varName] = value;
     }
@@ -55,8 +57,8 @@ Map toMap(Object object) {
   return map;
 }
 
-Object fromMap(Map map, Type type) {
-  SerializerClassInfo classInfo = getClassInfo(type);
+T fromMap<T>(Map map) {
+  SerializerClassInfo classInfo = getClassInfo(T);
   Object object = classInfo.classMirror.newInstance('', []);
   InstanceMirror instanceMirror = recordify.reflect(object);
   classInfo.variableMirrors.forEach((VariableMirror variableMirror) {
@@ -66,6 +68,5 @@ Object fromMap(Map map, Type type) {
       instanceMirror.invokeSetter(varName, value);
     }
   });
-  return object;
-
+  return object as T;
 }

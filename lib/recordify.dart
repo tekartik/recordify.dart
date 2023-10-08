@@ -5,6 +5,7 @@
 ///
 /// More dartdocs go here.
 library recordify;
+
 import 'package:reflectable/reflectable.dart';
 
 /*
@@ -22,9 +23,13 @@ class Record extends Reflectable {
 
 class Record extends Reflectable {
   const Record()
-      : super(invokingCapability);
+      : super(
+            invokingCapability,
+            //typeRelationsCapability,
+            metadataCapability,
+            //    superclassQuantifyCapability,
+            reflectedTypeCapability);
 }
-
 
 class Ignore {
   const Ignore();
@@ -37,4 +42,3 @@ class Id {
 class Index {
   const Index();
 }
-

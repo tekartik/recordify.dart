@@ -1,23 +1,25 @@
 name: recordify
 description: A starting point for Dart libraries or applications.
 version: 0.0.1
+publish_to: none
 #author: Alexandre Roux Tekartik <email@example.com>
 #homepage: https://www.example.com
 
 environment:
-  sdk: '>=1.0.0 <2.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   tekartik_common_utils:
-    git: git://github.com/tekartik/tekartik_common_utils.dart
+    git:
+      url: https://github.com/tekartik/common_utils.dart
+      ref: dart3a
   reflectable: '>=1.0.0'
 
-transformers:
+_transformers:
   - reflectable:
       entry_points:
         - test/*_test.dart
 
 dev_dependencies:
-  mongo_dart: any
   dev_test: any
   test: '>=0.12.0'
